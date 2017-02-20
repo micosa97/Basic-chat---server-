@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,10 +14,10 @@ namespace server
     {
         static void Main(string[] args)
         {
-            IPEndPoint localEP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1024);
+            IPEndPoint localEP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 1024); //local
             ArrayList list = new ArrayList();
             Socket server = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            Dictionary<string, EndPoint> users = new Dictionary<string, EndPoint>();
+            Dictionary<string, EndPoint> users = new Dictionary<string, EndPoint>();  //dict NAME of usr -- IPENDPOINT of usr
 
             server.Bind(localEP);
             EndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
@@ -28,19 +28,17 @@ namespace server
             int recv;
             byte[] data;
 
-            while (true)
+            while (true) //inf
             {
 
 
                 data = new byte[1024];
                 recv = 0;
                 recv = server.ReceiveFrom(data, ref remoteEP);
-              //  Console.WriteLine("Waiting for a client...");
-
                 String message = Encoding.ASCII.GetString(data, 0, recv);
                 Console.WriteLine(message);
                 
-                switch (message)
+                switch (message)  //protocole based on tree options: join, quit and message (sending)
                 {
                     case "join":
                         Console.WriteLine("Received from {0}: ", remoteEP.ToString());
@@ -66,12 +64,12 @@ namespace server
                     case "message":
 
                         int recv2 = server.ReceiveFrom(data, ref remoteEP);
-                        String name2 = Encoding.ASCII.GetString(data, 0, recv2);
+                        String name2 = Encoding.ASCII.GetString(data, 0, recv2); //sender
                         recv = server.ReceiveFrom(data, ref remoteEP);
-                        String receiver = Encoding.ASCII.GetString(data, 0, recv);
-                        recv = server.ReceiveFrom(data, ref remoteEP);
-                        String mes2 = Encoding.ASCII.GetString(data, 0, recv);
-                        string mes = name2 + ": " + mes2;
+                        String receiver = Encoding.ASCII.GetString(data, 0, recv); // rec
+                        recv = server.ReceiveFrom(data, ref remoteEP); 
+                        String mes2 = Encoding.ASCII.GetString(data, 0, recv); //message
+                        string mes = name2 + ": " + mes2; //what receiver receives
                         if (users.ContainsKey(receiver))
                         {
                             server.SendTo(Encoding.ASCII.GetBytes(mes), recv + recv2 + 2, SocketFlags.None, users[receiver]);
